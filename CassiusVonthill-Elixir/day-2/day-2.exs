@@ -31,4 +31,23 @@ defmodule Day2 do
     [a_v, b_v] = Enum.map([a, b], &Map.get(store, &1))
     process_recur(tail, Map.put(store, c, a_v * b_v))
   end
+
+  def part2(intcode) do
+    for noun <- 0..99, verb <- 0..99 do
+      {noun, verb}
+    end
+    |> Task.async_stream(fn pair = {noun, verb} ->
+      output =
+        intcode
+        |> List.replace_at(1, noun)
+        |> List.replace_at(2, verb)
+        |> Day2.part1()
+
+      {pair, output}
+    end)
+    |> Stream.map(fn {:ok, v} -> v end)
+    |> Enum.find(fn {_pair, output} -> output == 19_690_720 end)
+    |> elem(0)
+    |> (fn {noun, verb} -> 100 * noun + verb end).()
+  end
 end
