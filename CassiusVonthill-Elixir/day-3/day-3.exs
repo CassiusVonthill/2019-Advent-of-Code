@@ -14,23 +14,14 @@ defmodule Day3 do
 
   def part1(wire_paths) when is_list(wire_paths) do
     wire_paths
-    |> Task.async_stream(fn path ->
-      path
-      |> vecs_to_points
-      |> Enum.reduce([{0, 0}], fn {dx, dy}, acc = [{x, y} | _t] ->
-        [{x + dx, y + dy} | acc]
-      end)
-      |> MapSet.new()
-      |> MapSet.delete({0, 0})
-    end)
+    |> Task.async_stream(Day3, :vecs_to_points, [])
     |> Stream.map(fn {:ok, v} -> v end)
-    |> Enum.to_list()
-    |> (fn [a, b] -> MapSet.intersection(a, b) end).()
+    |> locate_intersections
     |> Stream.map(fn {x, y} -> abs(x) + abs(y) end)
     |> Enum.min()
   end
 
-  defp vecs_to_points(vecs) when is_list(vecs) do
+  def vecs_to_movements(vecs) when is_list(vecs) do
     for {direction, amplitude} <- vecs,
         _cnt <- 1..amplitude do
       case direction do
@@ -40,5 +31,48 @@ defmodule Day3 do
         :R -> {1, 0}
       end
     end
+  end
+
+  def vecs_to_points(vecs) do
+    vecs
+    |> vecs_to_movements
+    |> Enum.reduce([{0, 0}], fn {dx, dy}, acc = [{x, y} | _t] ->
+      [{x + dx, y + dy} | acc]
+    end)
+  end
+
+  defp locate_intersections(paths) do
+    paths
+    |> Stream.map(&MapSet.new(&1))
+    |> Stream.map(&MapSet.delete(&1, {0, 0}))
+    |> Enum.to_list()
+    |> (fn [a, b] -> MapSet.intersection(a, b) end).()
+  end
+
+  def part2(wire_paths) when is_list(wire_paths) do
+    path_points =
+      wire_paths
+      |> Task.async_stream(Day3, :vecs_to_points, [])
+      |> Stream.map(fn {:ok, v} -> v end)
+
+    intersection_points =
+      path_points
+      |> locate_intersections
+      |> MapSet.to_list()
+
+    path_points
+    |> Task.async_stream(fn path ->
+      path
+      # We preappend during the reduction in vecs_to_points
+      # for proper amount of hops we need to order them correctly again
+      |> Enum.reverse()
+      |> Stream.with_index()
+      |> Map.new()
+    end)
+    |> Enum.map(fn {:ok, v} -> v end)
+    |> (fn [a, b] -> Map.merge(a, b, fn _k, v1, v2 -> v1 + v2 end) end).()
+    |> Map.take(intersection_points)
+    |> Map.values()
+    |> Enum.min()
   end
 end
