@@ -72,7 +72,7 @@ defmodule Day3 do
     |> Enum.map(fn {:ok, v} -> v end)
     |> (fn [a, b] -> Map.merge(a, b, fn _k, v1, v2 -> v1 + v2 end) end).()
     |> Map.take(intersection_points)
-    |> Map.values()
-    |> Enum.min()
+    |> Enum.min_by(&elem(&1, 1))
+    |> elem(1)
   end
 end
