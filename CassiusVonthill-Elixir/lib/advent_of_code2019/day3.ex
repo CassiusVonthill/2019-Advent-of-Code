@@ -1,4 +1,6 @@
 defmodule AdventOfCode2019.Day3 do
+  alias AdventOfCode2019.Day3
+
   def load_file(path) do
     for line <- File.stream!(path),
         trimmed = String.trim(line) do
