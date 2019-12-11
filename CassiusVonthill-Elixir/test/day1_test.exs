@@ -1,10 +1,6 @@
-Code.load_file("day-1.exs", __DIR__)
-
-ExUnit.start()
-ExUnit.configure(exclude: :pending, trace: true)
-
 defmodule Day1Test do
   use ExUnit.Case
+  alias AdventOfCode2019.Day1
 
   test "mass of 12" do
     assert Day1.required_fuel(12) == 2

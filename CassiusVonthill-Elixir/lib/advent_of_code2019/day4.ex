@@ -1,4 +1,4 @@
-defmodule Day4 do
+defmodule AdventOfCode2019.Day4 do
   require Integer
 
   # for when inputs are "123257-647015"
@@ -22,11 +22,9 @@ defmodule Day4 do
            integer_counts <-
              Enum.reduce(dig, %{}, fn k, acc -> Map.update(acc, k, 1, &(&1 + 1)) end),
            true <- Enum.any?(integer_counts, fn {_k, v} -> v >= 2 end) do
-        with true <-
-               Enum.any?(integer_counts, fn {_k, v} -> v == 2 end) do
-          {1, 1}
-        else
-          _err -> {1, 0}
+        case Enum.any?(integer_counts, fn {_k, v} -> v == 2 end) do
+          true -> {1, 1}
+          false -> {1, 0}
         end
       else
         _err -> {0, 0}

@@ -1,4 +1,4 @@
-defmodule Day2 do
+defmodule AdventOfCode2019.Day2 do
   def load_file(path) do
     File.read!(path)
     |> String.trim()
@@ -41,7 +41,7 @@ defmodule Day2 do
         intcode
         |> List.replace_at(1, noun)
         |> List.replace_at(2, verb)
-        |> Day2.part1()
+        |> AdventOfCode2019.Day2.part1()
 
       {pair, output}
     end)

@@ -1,11 +1,13 @@
-defmodule Day1 do
+defmodule AdventOfCode2019.Day1 do
+  alias AdventOfCode2019.Day1
+
   def load_file(path) when is_binary(path) do
     with {:ok, content} <- File.read(path),
          masses <- String.split(content, "\n") do
       masses
       |> Enum.map(&String.to_integer/1)
     else
-      _ -> IO.puts("Something odd happened")
+      _ -> IO.puts("The file couldn't be loaded in!")
     end
   end
 
