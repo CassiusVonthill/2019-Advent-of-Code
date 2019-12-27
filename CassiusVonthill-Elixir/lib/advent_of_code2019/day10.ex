@@ -34,7 +34,7 @@ defmodule AdventOfCode2019.Day10 do
 
   def count_visible_asteroids(target, asteroids) do
     calc_asteroid_cordinates(target, asteroids)
-    |> Stream.uniq_by(fn {_polar = {_r, theta}, _catesian} -> theta end)
+    |> Stream.uniq_by(fn {{_r, theta}, _catesian} -> theta end)
     |> Enum.count()
   end
 
@@ -54,11 +54,11 @@ defmodule AdventOfCode2019.Day10 do
   # Pulled out into function incase there weren't over 200 groupings
   def find_nth_asteroid(theta_map, n) when map_size(theta_map) >= n do
     theta_map
+    # Sort by the key (theta) descending
     |> Enum.sort_by(&elem(&1, 0), &>=/2)
     # Account for zero-indexing
     |> Enum.at(n - 1)
-    |> elem(1)
-    |> List.first()
+    |> (fn {_k, [h | _t]} -> h end).()
   end
 
   def part2(asteroids) when is_list(asteroids) do
@@ -71,7 +71,6 @@ defmodule AdventOfCode2019.Day10 do
     # Turn into a map with theta as keys.
     # Values are kept in relative order so futher points are still later
     |> Enum.group_by(fn {{_r, theta}, _cartesian} -> theta end)
-    |> Enum.into(%{})
     |> find_nth_asteroid(200)
     |> (fn {_polar, {x, y}} -> x * 100 + y end).()
   end
