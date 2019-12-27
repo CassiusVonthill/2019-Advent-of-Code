@@ -24,7 +24,8 @@ defmodule AdventOfCode2019.MixProject do
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
-      {:flow, "~> 0.15.0"}
+      {:flow, "~> 0.15.0"},
+      {:math, "~> 0.3.0"}
     ]
   end
 end
