@@ -41,7 +41,9 @@ defmodule AdventOfCode2019.Day12 do
 
   def calc_velocity({p, v}, moons) do
     new_v =
-      for pos <- Enum.map(moons, &elem(&1, 0)) do
+      moons
+      |> Stream.map(&elem(&1, 0))
+      |> Task.async_stream(fn pos ->
         for {a, b} <- Enum.zip(p, pos) do
           cond do
             a > b -> -1
@@ -49,7 +51,8 @@ defmodule AdventOfCode2019.Day12 do
             a == b -> 0
           end
         end
-      end
+      end)
+      |> Stream.map(fn {:ok, v} -> v end)
       |> Enum.reduce(v, fn d, acc ->
         [d, acc]
         |> Enum.zip()
@@ -57,5 +60,42 @@ defmodule AdventOfCode2019.Day12 do
       end)
 
     {p, new_v}
+  end
+
+  def count_steps(moons), do: count_steps(moons, 1, %{})
+
+  def count_steps(_, _cnt, map) when map_size(map) == 3, do: map
+
+  def count_steps(moons, cnt, map) do
+    new_moons =
+      moons
+      |> step
+
+    new_map =
+      new_moons
+      |> Stream.map(&elem(&1, 1))
+      |> Enum.reduce([True, True, True], fn d, acc ->
+        [d, acc]
+        |> Enum.zip()
+        |> Enum.map(fn {a, b} -> a == 0 and b end)
+      end)
+      |> Stream.with_index()
+      |> Enum.reduce(map, fn
+        {True, k}, acc ->
+          Map.put_new(acc, k, cnt)
+
+        {_, _}, acc ->
+          acc
+      end)
+
+    count_steps(new_moons, cnt + 1, new_map)
+  end
+
+  def part2(moons) when is_list(moons) do
+    moons
+    |> count_steps()
+    |> Stream.map(&elem(&1, 1))
+    |> Enum.reduce(1, &Math.lcm(&1, &2))
+    |> (&(&1 * 2)).()
   end
 end

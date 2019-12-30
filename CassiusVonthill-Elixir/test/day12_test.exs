@@ -12,17 +12,31 @@ defmodule Day12Test do
     |> (&assert(&1 == {[-1, 0, 2], [0, 0, 0]})).()
   end
 
-  test "example 1 10 steps" do
+  test "example 1 total energy" do
     @example1
     |> Day12.load_file()
     |> Day12.part1(10)
     |> (&assert(&1 == 179)).()
   end
 
-  test "prompt" do
+  test "prompt total energy" do
     @prompt
     |> Day12.load_file()
     |> Day12.part1()
-    |> (&assert(&1 == 14907)).()
+    |> (&assert(&1 == 14_907)).()
+  end
+
+  test "example 1 count steps" do
+    @example1
+    |> Day12.load_file()
+    |> Day12.part2()
+    |> (&assert(&1 == 2_772)).()
+  end
+
+  test "prompt count steps" do
+    @prompt
+    |> Day12.load_file()
+    |> Day12.part2()
+    |> IO.puts()
   end
 end
