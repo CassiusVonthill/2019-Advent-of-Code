@@ -37,6 +37,6 @@ defmodule Day12Test do
     @prompt
     |> Day12.load_file()
     |> Day12.part2()
-    |> IO.puts()
+    |> (&assert(&1 == 467_081_194_429_464)).()
   end
 end

@@ -27,15 +27,10 @@ defmodule AdventOfCode2019.Day12 do
 
   def step(moons) do
     moons
-    |> Flow.from_enumerable()
-    |> Flow.map(&calc_velocity(&1, moons))
-    |> Enum.map(fn {p, v} ->
-      new_p =
-        [p, v]
-        |> Enum.zip()
-        |> Enum.map(fn {a, b} -> a + b end)
-
-      {new_p, v}
+    |> Task.async_stream(&calc_velocity(&1, moons))
+    |> Stream.map(fn {:ok, v} -> v end)
+    |> Enum.map(fn {[px, py, pz], v = [vx, vy, vz]} ->
+      {[px + vx, py + vy, pz + vz], v}
     end)
   end
 
@@ -43,20 +38,16 @@ defmodule AdventOfCode2019.Day12 do
     new_v =
       moons
       |> Stream.map(&elem(&1, 0))
-      |> Task.async_stream(fn pos ->
-        for {a, b} <- Enum.zip(p, pos) do
-          cond do
-            a > b -> -1
-            a < b -> 1
-            a == b -> 0
-          end
-        end
-      end)
-      |> Stream.map(fn {:ok, v} -> v end)
       |> Enum.reduce(v, fn d, acc ->
-        [d, acc]
-        |> Enum.zip()
-        |> Enum.map(fn {a, b} -> a + b end)
+        [d, p, acc]
+        |> Stream.zip()
+        |> Enum.map(
+          &case &1 do
+            {other_p, my_p, av} when other_p > my_p -> av + 1
+            {other_p, my_p, av} when other_p < my_p -> av - 1
+            {other_p, my_p, av} when other_p == my_p -> av
+          end
+        )
       end)
 
     {p, new_v}
@@ -67,25 +58,23 @@ defmodule AdventOfCode2019.Day12 do
   def count_steps(_, _cnt, map) when map_size(map) == 3, do: map
 
   def count_steps(moons, cnt, map) do
-    new_moons =
-      moons
-      |> step
+    new_moons = step(moons)
 
     new_map =
       new_moons
       |> Stream.map(&elem(&1, 1))
-      |> Enum.reduce([True, True, True], fn d, acc ->
-        [d, acc]
-        |> Enum.zip()
-        |> Enum.map(fn {a, b} -> a == 0 and b end)
+      |> Enum.reduce_while([True, True, True], fn d, acc ->
+        new_acc =
+          [d, acc]
+          |> Stream.zip()
+          |> Enum.map(fn {a, b} -> a == 0 and b end)
+
+        if Enum.any?(new_acc, & &1), do: {:cont, new_acc}, else: {:halt, new_acc}
       end)
       |> Stream.with_index()
-      |> Enum.reduce(map, fn
-        {True, k}, acc ->
-          Map.put_new(acc, k, cnt)
-
-        {_, _}, acc ->
-          acc
+      |> Stream.filter(fn {bool, _k} -> bool end)
+      |> Enum.reduce(map, fn {True, k}, acc ->
+        Map.put_new(acc, k, cnt)
       end)
 
     count_steps(new_moons, cnt + 1, new_map)
@@ -96,6 +85,6 @@ defmodule AdventOfCode2019.Day12 do
     |> count_steps()
     |> Stream.map(&elem(&1, 1))
     |> Enum.reduce(1, &Math.lcm(&1, &2))
-    |> (&(&1 * 2)).()
+    |> Kernel.*(2)
   end
 end
