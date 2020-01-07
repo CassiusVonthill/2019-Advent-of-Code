@@ -33,6 +33,7 @@ defmodule Day12Test do
     |> (&assert(&1 == 2_772)).()
   end
 
+  @tag :skip
   test "prompt count steps" do
     @prompt
     |> Day12.load_file()
