@@ -25,10 +25,10 @@ defmodule AdventOfCode2019.Day16 do
     idx
     |> pattern_generator
     |> Stream.zip(signal_list)
+    |> Stream.drop(idx - 1)
     |> Stream.map(fn {x, y} -> x * y end)
     |> Enum.sum()
-    |> Integer.digits()
-    |> Enum.at(-1)
+    |> rem(10)
     |> abs
   end
 
