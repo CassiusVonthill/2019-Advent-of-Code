@@ -101,8 +101,6 @@ defmodule Day16Test do
       |> Day16.load_data(10_000)
       |> Day16.part2()
 
-    # |> IO.inspect()
-
     assert result == 23_752_579
   end
 end

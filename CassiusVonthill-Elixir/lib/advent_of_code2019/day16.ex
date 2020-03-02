@@ -80,8 +80,8 @@ defmodule AdventOfCode2019.Day16 do
 
   def phase_2(signal, phase) do
     signal
-    |> iterate_digits()
     |> Enum.reverse()
+    |> iterate_digits()
     |> phase_2(phase - 1)
   end
 
@@ -91,13 +91,9 @@ defmodule AdventOfCode2019.Day16 do
       |> Enum.take(7)
       |> Integer.undigits()
 
-    # |> IO.inspect()
-
     signal
     |> Enum.drop(offset)
-    |> Enum.reverse()
     |> phase_2(phases)
-    |> Enum.reverse()
     |> Enum.take(8)
     |> Integer.undigits()
   end
