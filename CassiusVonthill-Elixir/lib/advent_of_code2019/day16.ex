@@ -6,36 +6,34 @@ defmodule AdventOfCode2019.Day16 do
     |> Enum.map(&String.to_integer/1)
   end
 
-  def pattern_generator(index) do
-    0
-    # Create an infiniste stream of numbers
-    |> Stream.iterate(&(&1 + 1))
-    # Finds what grouping of the pattern we are in
-    |> Stream.map(&div(&1, index))
-    # Converts the number into an index of the pattern
-    |> Stream.map(&rem(&1, 4))
-    # Converts the index to the actual value
-    |> Stream.map(fn
-      2 -> 0
-      3 -> -1
-      x -> x
-    end)
-    |> Stream.drop(1)
-  end
-
   def calc_digit(idx, signal_list) do
-    idx
-    |> pattern_generator
-    |> Stream.zip(signal_list)
-    |> Stream.drop(idx - 1)
-    |> Stream.map(fn {x, y} -> x * y end)
-    |> Enum.sum()
-    |> rem(10)
-    |> abs
-  end
+    chunked =
+      signal_list
+      # The offset
+      |> Stream.drop(idx - 1)
+      # Groups of what pattern item
+      |> Stream.chunk_every(idx)
+      # We don't care about where the
+      # pattern is zero
+      |> Enum.take_every(2)
 
-  def phase_1(signal, phase) do
-    phase_1(signal, length(signal), phase)
+    concant_and_sum = fn x ->
+      x
+      |> Stream.concat()
+      |> Enum.sum()
+    end
+
+    optimists =
+      chunked
+      |> Enum.take_every(2)
+      |> concant_and_sum.()
+
+    pessimists =
+      chunked
+      |> Enum.drop_every(2)
+      |> concant_and_sum.()
+
+    rem(optimists - pessimists, 10) |> abs
   end
 
   def phase_1(signal, _len, 0), do: signal
@@ -48,8 +46,8 @@ defmodule AdventOfCode2019.Day16 do
   end
 
   def part1(signal, phases \\ 100) do
-    phase_1(signal, phases)
-    |> Enum.slice(0, 8)
+    phase_1(signal, length(signal), phases)
+    |> Enum.take(8)
     |> Integer.undigits()
   end
 

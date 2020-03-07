@@ -1,5 +1,5 @@
 defmodule Day16Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias AdventOfCode2019.Day16
 
   @prompt File.read!("test/d16/prompt.txt")
@@ -22,22 +22,6 @@ defmodule Day16Test do
       |> Day16.part1(4)
 
     assert result == 01_029_498
-  end
-
-  test "pattern generator" do
-    result =
-      2
-      |> Day16.pattern_generator()
-      |> Enum.take(10)
-
-    assert result == [0, 1, 1, 0, 0, -1, -1, 0, 0, 1]
-
-    result =
-      3
-      |> Day16.pattern_generator()
-      |> Enum.take(10)
-
-    assert result == [0, 0, 1, 1, 1, 0, 0, 0, -1, -1]
   end
 
   test "part 1 other examples" do
